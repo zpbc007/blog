@@ -1,13 +1,15 @@
 // 定义路由
+const path = require('path')
 const router = require('koa-router')()
 const readFile = require('../util/file').readFile
 const showdown = require('showdown')
 const converter = new showdown.Converter()
 // todo 放入数据库
 const info = require('../../test/info.json')
+const idPathMap = require('../../test/idToPath.json')
 
-async function getHtml () {
-    const file = await readFile(path.join(__dirname, './docs/1.log.md'))
+async function getHtml (fileName) {
+    const file = await readFile(path.join(__dirname, '../../docs', fileName))
     return converter.makeHtml(file)
 }
 
@@ -18,7 +20,8 @@ async function pageList (ctx) {
 
 // 获取文章页
 async function viewPage (ctx) {
-
+    const filePath = idPathMap[ctx.params.id]
+    ctx.body = await getHtml(filePath)
 }
 
 router.get('/', pageList)
