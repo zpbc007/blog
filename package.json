@@ -7,7 +7,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,7 @@
   "homepage": "https://github.com/zpbc007/blog#readme",
   "dependencies": {
     "koa": "^2.5.0",
+    "koa-router": "^7.4.0",
     "module-alias": "^2.0.6",
     "showdown": "^1.8.6"
   },
@@ -31,6 +32,7 @@
     "@root": ".",
     "@src": "./src",
     "@util": "./src/util",
-    "@doc": "./docs"
+    "@doc": "./docs",
+    "@middleware": "./src/middleware"
   }
 }
