@@ -4,7 +4,7 @@ const fs = require('fs')
 
 function readFile (path) {
     return new Promise((resolve, reject) => {
-        console.group('读取文件')
+        console.group('--->')
         console.log(`开始读取文件: ${path}`)
         fs.readFile(path, 'utf8', (err, data) => {
             if (err) {

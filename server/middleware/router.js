@@ -1,12 +1,12 @@
 // 定义路由
 const path = require('path')
 const router = require('koa-router')()
-const readFile = require('../util/file').readFile
+const readFile = require('../../util/file').readFile
 const showdown = require('showdown')
 const converter = new showdown.Converter()
 // todo 放入数据库
-const info = require('../../test/info.json')
-const idPathMap = require('../../test/idToPath.json')
+const info = require('../assets/info.json')
+const idPathMap = require('../assets/idToPath.json')
 
 async function getHtml (fileName) {
     const file = await readFile(path.join(__dirname, '../../docs', fileName))
