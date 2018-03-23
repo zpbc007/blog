@@ -21,12 +21,14 @@
   },
   "homepage": "https://github.com/zpbc007/blog#readme",
   "dependencies": {
+    "axios": "^0.18.0",
     "iview": "^2.11.0",
     "koa": "^2.5.0",
     "koa-router": "^7.4.0",
     "module-alias": "^2.0.6",
     "showdown": "^1.8.6",
-    "vue": "^2.5.16"
+    "vue": "^2.5.16",
+    "vue-router": "^3.0.1"
   },
   "devDependencies": {
     "ava": "^0.25.0",

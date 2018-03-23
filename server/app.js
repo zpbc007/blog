@@ -7,5 +7,5 @@ const route = require('./middleware/router').router
 // 路由
 app.use(route)
 
-app.listen('3000')
+app.listen('8088')
 
