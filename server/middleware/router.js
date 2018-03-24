@@ -24,8 +24,14 @@ async function viewPage (ctx) {
     ctx.body = await getHtml(filePath)
 }
 
+// 获取首页
+async function getRootPage (ctx) {
+    ctx.body = await readFile(path.join(__dirname, '../../dist/index.html'))
+}
+
 router.get('/api', pageList)
   .get('/api/view/:id', viewPage)
+  .get('/', getRootPage)
 
 
 

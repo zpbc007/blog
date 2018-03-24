@@ -26,6 +26,7 @@
     "iview": "^2.11.0",
     "koa": "^2.5.0",
     "koa-router": "^7.4.0",
+    "koa-static": "^4.0.2",
     "module-alias": "^2.0.6",
     "showdown": "^1.8.6",
     "vue": "^2.5.16",

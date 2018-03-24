@@ -5,12 +5,16 @@ var chalk = require('chalk')
 
 const path = require('path')
 const Koa = require('koa')
+const staticServe = require('koa-static');
 const app = new Koa()
 const route = require('./middleware/router').router
 
 // 控制台
 const spinner = ora('system is starting now')
 spinner.start()
+
+// 静态资源
+app.use(staticServe(path.resolve(__dirname, './dist')))
 
 // 路由
 app.use(route)
