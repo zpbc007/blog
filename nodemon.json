@@ -1,0 +1,10 @@
+{
+    "watch": [
+        "server/",
+        "build/"
+    ],
+    "ignore": [
+        ".git",
+        "node_modules"
+    ]
+}
