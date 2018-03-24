@@ -23,7 +23,6 @@ export default {
             axios.get(`/api/view/${this.id}`)
                 .then(res => {
                     this.innerHtml = res.data
-                    debugger
                 })
         }
     },

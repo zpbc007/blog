@@ -31,9 +31,9 @@ module.exports = {
         // 代理
         proxyTable: {
             '/api': {
-                target: 'http://localhost:8088',
+                target: 'http://TESTSERVER:8088',
                 pathRewrite: {
-                    '^/api': '/'
+                    '^/api': '/api'
                 }
             },
         },

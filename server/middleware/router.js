@@ -24,8 +24,8 @@ async function viewPage (ctx) {
     ctx.body = await getHtml(filePath)
 }
 
-router.get('/', pageList)
-  .get('/view/:id', viewPage)
+router.get('/api', pageList)
+  .get('/api/view/:id', viewPage)
 
 
 
