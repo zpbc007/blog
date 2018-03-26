@@ -32,9 +32,4 @@ export default {
     }
 }
 </script>
-<style scoped>
-@import "../../static/css/code.css";
-@import "../../static/css/markdown.css";
-
-</style>
 

@@ -6,6 +6,7 @@
             :key="item.id"
             :title="item.title"
             :content="item.content"
+            :docPic="item.docPic"
             @click.native="itemClick(item.id)"
         ></doc-item>
     </div>

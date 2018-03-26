@@ -2,7 +2,8 @@
     {
         "id": "1",
         "title": "测试标题",
-        "content": "这是内容。。。。"
+        "content": "markdown样式，及代码关键字高亮显示的测试",
+        "docPic": "docs_2_01.jpg"
     },
     {
         "id": "2",

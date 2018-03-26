@@ -1,8 +1,14 @@
 <template>
     <div class="container">
-        <Card @click="clickItem">
+        <Card>
             <p slot="title">
                 {{ title }}
+            </p>
+            <p v-if="showPic">
+                <img
+                    class="doc-pic"
+                    :src="`../../../static/img/${docPic}`"
+                />
             </p>
             <p>
                 {{ content }}
@@ -20,21 +26,28 @@ export default {
         content: {
             type: String,
             default: ''
+        },
+        // 显示的文章图片，从static/img取
+        docPic: {
+            type: String,
+            default: ''
         }
     },
-    data () {
-        return {
-
-        }
-    },
-    methods: {
-        clickItem () {
-            debugger
+    computed: {
+        showPic () {
+            return this.docPic && this.docPic !== ''
         }
     }
 }
 </script>
 <style scoped>
+.container {
+    cursor: pointer;
+}
+.doc-pic {
+    max-width: 100%;
+    max-height: 200px;
+}
 </style>
 
 
