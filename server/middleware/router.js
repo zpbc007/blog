@@ -2,15 +2,29 @@
 const path = require('path')
 const router = require('koa-router')()
 const readFile = require('../../util/file').readFile
-const showdown = require('showdown')
-const converter = new showdown.Converter()
+const markdown = require('markdown-it')
+const hljs = require('highlight.js');
+// Actual default values
+const md = require('markdown-it')({
+    highlight: function (str, lang) {
+      if (lang && hljs.getLanguage(lang)) {
+        try {
+          return '<pre class="hljs"><code>' +
+                 hljs.highlight(lang, str, true).value +
+                 '</code></pre>';
+        } catch (__) {}
+      }
+  
+      return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
+    }
+  });
 // todo 放入数据库
 const info = require('../assets/info.json')
 const idPathMap = require('../assets/idToPath.json')
 
-async function getHtml (fileName) {
+async function getHtmlByMd (fileName) {
     const file = await readFile(path.join(__dirname, '../../docs', fileName))
-    return converter.makeHtml(file)
+    return md.render(file)
 }
 
 // 获取列表
@@ -21,7 +35,7 @@ async function pageList (ctx) {
 // 获取文章页
 async function viewPage (ctx) {
     const filePath = idPathMap[ctx.params.id]
-    ctx.body = await getHtml(filePath)
+    ctx.body = await getHtmlByMd(filePath)
 }
 
 // 获取首页
