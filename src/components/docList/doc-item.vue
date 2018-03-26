@@ -1,9 +1,17 @@
 <template>
     <div class="container">
         <Card>
-            <p slot="title">
-                {{ title }}
-            </p>
+            <div slot="title">
+                <h2 class="item-title">
+                    {{ title }}
+                </h2>
+                <span 
+                    class="item-date"
+                    v-if="showDate"> 
+                    <Icon type="calendar"></Icon>
+                    {{ date }}
+                </span>
+            </div>
             <p v-if="showPic">
                 <img
                     class="doc-pic"
@@ -31,11 +39,18 @@ export default {
         docPic: {
             type: String,
             default: ''
+        },
+        date: {
+            type: String,
+            default: ''
         }
     },
     computed: {
         showPic () {
             return this.docPic && this.docPic !== ''
+        },
+        showDate () {
+            return this.date && this.date !== ''
         }
     }
 }
@@ -47,6 +62,12 @@ export default {
 .doc-pic {
     max-width: 100%;
     max-height: 200px;
+}
+.item-title {
+    display: inline;
+}
+.item-date {
+    float: right;
 }
 </style>
 
