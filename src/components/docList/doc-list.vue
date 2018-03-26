@@ -51,7 +51,6 @@ export default {
 <style scoped>
 .item {
     margin-bottom: 20px;
-    border: 1px, solid 
 }
 </style>
 
