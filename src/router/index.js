@@ -14,15 +14,30 @@ const router = new VueRouter({
         {
             path: '/',
             name: 'mainPage',
-            component: docList
+            component: docList,
+            meta: {
+                title: '主页'
+            }
         },
         {
-            path: '/view/:id',
+            path: '/view/:title/:id',
             name: 'viewPage',
             component: docContainer,
             props: true
         }
     ]
+})
+
+router.beforeEach((to, from, next) => {
+    let title = ''
+    if (to.meta.title) {
+        title = to.meta.title
+    }
+    if (to.params.title) {
+        title = to.params.title
+    }
+    document.title = title
+    next()
 })
 
 export default router

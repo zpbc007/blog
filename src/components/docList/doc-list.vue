@@ -8,7 +8,7 @@
             :content="item.content"
             :docPic="item.docPic"
             :date="item.date"
-            @click.native="itemClick(item.id)"
+            @click.native="itemClick(item.id, item.title)"
         ></doc-item>
     </div>
 </template>
@@ -39,10 +39,10 @@ export default {
                     this.$Message.error('获取数据失败')
                 })
         },
-        itemClick (id) {
+        itemClick (id, title) {
             this.$router.push({
                 name: 'viewPage',
-                params: {id}
+                params: {id, title}
             })
         }
     }
