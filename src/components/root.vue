@@ -63,7 +63,7 @@ export default {
                 {
                     title: '链接',
                     // 真实路径
-                    link: 'http://litten.me/'
+                    link: 'https://github.com/zpbc007'
                 }
             ],
             socialList: [
