@@ -6,11 +6,12 @@ Vue.use(VueRouter)
 // 列表组价
 const docList = resolve => require(['../components/docList/doc-list.vue'], resolve)
 const docContainer = resolve => require(['../components/docContainer.vue'], resolve)
+const editPage = resolve => require(['../components/editPage.vue'], resolve)
 
 const router = new VueRouter({
-    mode: 'history',
-    base: __dirname,
+    base: '/',
     routes: [
+        // 首页
         {
             path: '/',
             name: 'mainPage',
@@ -19,11 +20,18 @@ const router = new VueRouter({
                 title: '主页'
             }
         },
+        // 查看页
         {
             path: '/view/:title/:id',
             name: 'viewPage',
             component: docContainer,
             props: true
+        },
+        // 编辑页
+        {
+            path: '/config',
+            name: 'editPage',
+            component: editPage
         }
     ]
 })
