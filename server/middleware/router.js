@@ -3,6 +3,7 @@ const path = require('path')
 const router = require('koa-router')()
 const overviewController = require('../controller/overviewController')
 const viewController = require('../controller/viewController')
+const configController = require('../controller/configController')
 
 // 获取首页
 async function getRootPage (ctx) {
@@ -12,6 +13,7 @@ async function getRootPage (ctx) {
 router.get('/api', overviewController.getPageList)
   .get('/api/view/:id', viewController.getViewPage)
   .get('/', getRootPage)
+  .get('/api/getMarkDownList', configController.getMarkdownList)
 
 
 

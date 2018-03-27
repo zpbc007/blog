@@ -12,8 +12,8 @@
                 <Select v-model="form.markdownName">
                     <Option 
                         v-for="option in markdownNameList"
-                        :key="option.id"
-                        :value="option.id"
+                        :key="option.value"
+                        :value="option.value"
                     >
                         {{ option.label }}
                     </Option>
@@ -41,7 +41,8 @@ import axios from 'axios'
 import { dateFormat } from '@util/Date'
 
 const fetchDir = {
-    formData: '/api'
+    formData: '/api',
+    markdownNameList: '/api/getMarkDownList'
 }
 
 export default {
@@ -69,12 +70,22 @@ export default {
         } else {
             this.$set(this.form, 'date', dateFormat(new Date(), 'yyyy-MM-dd'))
         }
+        this.getFileList()
     },
     methods: {
         getFormData () {
             axios.get(`${fetchDir.formData}/${this.id}`)
                 .then(res => {
                     this.form = res.data
+                })
+                .catch(error => {
+                    this.$Message.error('获取数据失败')
+                })
+        },
+        getFileList () {
+            axios.get(`${fetchDir.markdownNameList}`)
+                .then(res => {
+                    this.markdownNameList = res.data
                 })
                 .catch(error => {
                     this.$Message.error('获取数据失败')
