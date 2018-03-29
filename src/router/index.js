@@ -3,10 +3,16 @@ import Vue from 'vue'
 
 Vue.use(VueRouter)
 
-// 列表组价
+// 列表组件
 const docList = resolve => require(['../components/docList/doc-list.vue'], resolve)
+// markdown容器
 const docContainer = resolve => require(['../components/docContainer.vue'], resolve)
+// 编辑页面
 const editPage = resolve => require(['../components/editPage.vue'], resolve)
+
+// 流程图测试
+const flowchart = resolve => require(['../components/chart/1.flowchart.text.vue'], resolve)
+const flowchart3 = resolve => require(['../components/chart/2.d3.test.vue'], resolve)
 
 const router = new VueRouter({
     base: '/',
@@ -32,6 +38,18 @@ const router = new VueRouter({
             path: '/config',
             name: 'editPage',
             component: editPage
+        },
+        // 流程图
+        {
+            path: '/chart',
+            name: 'flowchart',
+            component: flowchart
+        },
+        // 流程图 d3
+        {
+            path: '/chart3',
+            name: 'flowchart3',
+            component: flowchart3
         }
     ]
 })
