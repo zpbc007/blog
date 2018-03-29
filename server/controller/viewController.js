@@ -15,12 +15,21 @@ const md = require('markdown-it')({
         } catch (__) {}
       }
   
-      return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
+      return md.utils.escapeHtml(str);
     }
 })
 async function getHtml (fileName) {
     const file = await readFile(path.join(__dirname, '../../docs', fileName))
-    return md.render(file)
+    return addScript(md.render(file))
+}
+
+function addScript (html) {
+    return `<script>
+    var script = document.createElement('script')
+    script.src = 'https://cdn.bootcss.com/flowchart/1.10.0/flowchart.js'
+    document.body.appendChild(script)
+    </script>` + html 
+        
 }
 
 async function getViewPage (ctx) {

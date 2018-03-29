@@ -91,7 +91,7 @@ const relList = {
     '1-top': ['2-bottom'],
     '1-right': ['5-left'],
     '1-bottom': ['3-top'],
-    '1-left': ['4-right'],
+    '1-left': ['4-right']
 }
 
 // 节点挂载点
@@ -531,7 +531,6 @@ export default {
                 haveInter = this.calIntersectionByTwoPoints(startPoint, startPoint)
             // 递归 直到有交点或在同一条线上
             while (!sameLine && !haveInter) {
-                debugger
                 startPoints.push(startPoint)
                 endPoints.unshift(endPoint)
 
@@ -546,7 +545,6 @@ export default {
             } 
             startPoints.push(startPoint)
             endPoints.unshift(endPoint)
-            debugger
             return startPoints.concat(endPoints)
         },
         // 根据两个元素生成包围的线及坐标线的集合

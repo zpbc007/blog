@@ -1,5 +1,5 @@
 <template>
-    <div class="markdown-style" v-html="innerHtml">
+    <div class="markdown-style" v-append="innerHtml">
     </div>
 </template>
 <script>

@@ -34,6 +34,7 @@
     "module-alias": "^2.0.6",
     "npm": "^5.8.0",
     "vue": "^2.5.16",
+    "vue-append": "^1.1.2",
     "vue-router": "^3.0.1"
   },
   "devDependencies": {
@@ -43,6 +44,7 @@
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.6.1",
     "clean-webpack-plugin": "^0.1.19",
+    "compression-webpack-plugin": "^1.1.11",
     "copy-webpack-plugin": "^4.5.1",
     "css-loader": "^0.28.11",
     "file-loader": "^1.1.11",
