@@ -104,7 +104,6 @@ export default {
 }
 .content {
     padding: 0 30px;
-    overflow: auto;
 }
 
 .sider {
