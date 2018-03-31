@@ -1,5 +1,4 @@
 // 查看页controller
-
 const path = require('path')
 const readFile = require('../../util/file').readFile
 const hljs = require('highlight.js')
@@ -20,16 +19,7 @@ const md = require('markdown-it')({
 })
 async function getHtml (fileName) {
     const file = await readFile(path.join(__dirname, '../../docs', fileName))
-    return addScript(md.render(file))
-}
-
-function addScript (html) {
-    return `<script>
-    var script = document.createElement('script')
-    script.src = 'https://cdn.bootcss.com/flowchart/1.10.0/flowchart.js'
-    document.body.appendChild(script)
-    </script>` + html 
-        
+    return md.render(file)
 }
 
 async function getViewPage (ctx) {
