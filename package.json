@@ -34,7 +34,6 @@
     "module-alias": "^2.0.6",
     "npm": "^5.8.0",
     "vue": "^2.5.16",
-    "vue-append": "^1.1.2",
     "vue-router": "^3.0.1"
   },
   "devDependencies": {
