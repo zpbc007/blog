@@ -7,10 +7,8 @@ import Vue from 'vue'
 import './components'
 import router from './router/index'
 // import store from './vuex/store'
-import VueAppend from 'vue-append'
 
 Vue.use(iView)
-Vue.use(VueAppend)
 const app = new Vue({
     el: '#app',
     router,

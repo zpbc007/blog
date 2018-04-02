@@ -84,6 +84,20 @@ const initNodeList = [
         width: 100,
         height: 80,
         id: 5
+    },
+    {   
+        // 透明点 （带有默认属性的圆）
+        type: 'point',
+        x: 10,
+        y: 10,
+        id: 6
+    },
+    {
+         // 透明点 （带有默认属性的圆）
+        type: 'point',
+        x: 100,
+        y: 100,
+        id: 7
     }
 ]
 
@@ -91,7 +105,8 @@ const relList = {
     '1-top': ['2-bottom'],
     '1-right': ['5-left'],
     '1-bottom': ['3-top'],
-    '1-left': ['4-right']
+    '1-left': ['4-right'],
+    '6': ['7']
 }
 
 // 节点挂载点
@@ -107,6 +122,14 @@ const xyDirections = {
     right: 'x',
     bottom: 'y',
     left: 'x',
+}
+// 透明节点默认属性
+const transparentNodeDefaultAttr = {
+    'r': 5,
+    'fill-opacity': 0,
+    'fill': 'black',
+    'stroke': 'white',
+    'stroke-width': '0'
 }
 
 export default {
@@ -136,13 +159,13 @@ export default {
     watch: {
         nodeList: {
             handler () {
-                this.draw()
-                this.genLines()
+                this.drawGraph()
+                this.drawLines()
             },
             deep: true
         },
         relList () {
-            this.genLines()
+            this.drawLines()
         },
         // todo 测试用
         selectedNodeList (newVal) {
@@ -191,7 +214,6 @@ export default {
         init () {
             this.initCanvas()
             this.initData()
-            this.genLines()
         },
         // 准备画布
         initCanvas () {
@@ -202,6 +224,7 @@ export default {
                 .attr('width', width)
                 .attr('height', height)
                 .append('g')
+                .attr('class', 'chart-container')
         },
         // 初始数据绘制到画布上
         initData () {
@@ -246,32 +269,65 @@ export default {
             this.$set(this.nodeList, nodeId, {...node, id: nodeId})
         },
         // 遍历节点 绘图  todo应该只绘制改变的部分
-        draw () {
+        drawGraph () {
             let nodeObj = {
-                'rect': []
+                'rect': [],
+                'point': []
             }
             // 根据节点类型分批绘制
             for (let nodeId in this.nodeList) {
                 nodeObj[this.nodeList[nodeId].type].push(this.nodeList[nodeId])
             }
+
             for (let type in nodeObj) {
                 switch(type) {
                     case 'rect':
-                        const obj = this.drawRect(nodeObj[type])
-                        this.addText(obj.group)
-                        this.addDragEvent(obj.group)
-                        this.addClickEvent(obj.rects)
-                        this.addCircle(obj)
+                        this.drawRect(nodeObj[type])
+                        break
+                    case 'point':
+                        this.drawPoint(nodeObj[type])
                         break
                     default:
                         throw new Error(`错误的类型: ${type}`)
                 }
             }
         },
-        // 批量绘制矩形
-        drawRect (nodeList) {
+        drawPoint (nodeDataList) {
+            const vue = this
+            // 添加默认设置
+            nodeDataList = nodeDataList.map(item => {
+                return {...transparentNodeDefaultAttr, ...item}
+            })
+            let pointGroup = this.svg.selectAll('.pointGroup')
+                .data(nodeDataList)
+                .enter()
+                .append('g')
+                .attr('class', 'pointGroup')
+            pointGroup.each(function (data) {
+                vue.appendCircle([data], d3.select(this), 'circle')
+            })
+            // this.addClickEvent(pointGroup)
+        },
+        /**
+         * @description 绘制矩形节点、文字、矩形四周挂载点、添加drap与click事件
+         * @argument nodeDataList 矩形节点数组
+         */
+        drawRect (nodeDataList) {
+            const obj = this.appendRect(nodeDataList)
+            this.appendText(obj.group)
+            this.addCircle(obj)
+            this.addDragEvent(obj.group)
+            this.addClickEvent(obj.graph)
+        },
+        /**
+         * @description 将矩形绘制到svg中
+         * @argument nodeDataList 矩形节点数组
+         * @returns {group: 所有group， rects: 所有矩形}
+         * todo 现在只有enter部分 将来应该会有remove/update部分
+         */
+        appendRect (nodeDataList) {
             const rectGroup = this.svg.selectAll('.zpRectGroup')
-                .data(nodeList)
+                .data(nodeDataList)
                 .enter()
                 .append('g')
                 .attr('class', 'zpRectGroup')
@@ -289,22 +345,36 @@ export default {
             
             return {
                 group: rectGroup,
-                rects: rects
+                graph: rects
             }
         },
-        // 为图形添加拖动事件
-        addDragEvent (nodeList) {
+        /**
+         * @description 为图形添加拖动事件
+         * @argument nodeList d3节点数组
+         * @argument callback 拖动回调 arg1: 被拖动元素 arg2: 绑定的数据
+         * todo callback应该传入
+         */
+        addDragEvent (nodeList, callback) {
             const vue = this
             nodeList.call(drag()
                 .on('drag', function (data) {
-                    vue.$set(data, 'x', data.x + d3.event.dx)
-                    vue.$set(data, 'y', data.y + d3.event.dy)
-                    d3.select(this)
-                        .attr('transform', `translate(${data.x}, ${data.y})`)
+                    if (callback) {
+                        callback(this, data)
+                    } else {
+                        vue.$set(data, 'x', data.x + d3.event.dx)
+                        vue.$set(data, 'y', data.y + d3.event.dy)
+                        d3.select(this)
+                            .attr('transform', `translate(${data.x}, ${data.y})`)
+                    }
                 })
             )
         },
-        // 添加点击事件
+        // 
+        /**
+         * @description 为图形添加点击事件
+         * @argument nodeList d3节点数组
+         * todo callback应传入
+         */
         addClickEvent (nodeList) {
             const vue = this
             nodeList.on('click', function (data, index) {
@@ -320,19 +390,21 @@ export default {
                     d3.select(this)
                         .attr('fill-opacity', '0.5')
                 }
-                
-
             })
         },
-        // 向图形添加四周圆形
+        /**
+         * @description 向图形添加四周圆形
+         * @argument {group: 图形容器, graph: 被添加的图形}
+         */
         addCircle (obj) {
-            let { group, rects } = obj
+            let { group, graph } = obj
             // 遍历每一个矩形
-            rects.each((item, index) => {
+            graph.each((item, index) => {
                 // 计算四个圆的坐标
                 switch (item.type) {
                     case 'rect':
                         let points = []
+                        // 计算每个圆形的坐标
                         for (let dir in directions) {
                             points.push({
                                 // g有偏移
@@ -340,30 +412,38 @@ export default {
                                 r: '5px'
                             })
                         }
-                        this.drawCircle(points, d3.select(group.nodes()[index]))
+                        let circles = this.appendCircle(points, d3.select(group.nodes()[index]))
+                        this.addDragEvent(circles)
                         break
                     default:
                         throw new Error(`不支持的节点类型: ${item.type}`)
                 }
             })
         },
-        // 绘制圆形 四个
-        drawCircle (points, group) {
-            group.selectAll('.circle')
+        /**
+         * @description 向group中添加圆形
+         * @argument points 圆形坐标数组
+         * @argument group 容器
+         */
+        appendCircle (points, group, className) {
+            return group.selectAll(className || '.circle')
                 .data(points)
                 .enter()
                 .append('circle')
-                .attr('class', 'circle')
+                .attr('class', className || 'circle')
                 .attr('cx', item => item.x)
                 .attr('cy', item => item.y)
                 .attr('r', item => item.r)
-                .attr('fill-opacity', '1')
-                .attr('fill', 'white')
-                .attr('stroke', 'blue')
-                .attr('stroke-width', '1px')
+                .attr('fill-opacity', item => !item['fill-opacity'] && item['fill-opacity'] !== 0 ? '1' : item['fill-opacity'])
+                .attr('fill', item => item['fill'] || 'white')
+                .attr('stroke', item => item['stroke'] || 'blue')
+                .attr('stroke-width', item => item['stroke-width'] || '1px')
         },
-        // 向图形添加文字
-        addText (nodeList) {
+        /**
+         * @description 向图形添加文字
+         * @argument nodeList d3节点数组
+         */
+        appendText (nodeList) {
             nodeList.append('text')
                 .text(item => item.text)
                 .attr("text-anchor", "middle")
@@ -371,18 +451,20 @@ export default {
                 .attr('y', item => item.height / 2)
                 .attr("fill", "black")
         },
-        // 绘制线
-        genLines () {
+        /**
+         * @description 遍历节点关系绘制连线
+         */
+        drawLines () {
             let lines = []
             for (let key in this.relList) {
                 this.relList[key].forEach(item => {
                     lines.push(this.genPointsByRel(key, item))
                 })
             }
-            this.drawLine(lines)
+            this.appendLine(lines)
         },
         // 根据端点坐标绘制直线
-        drawLine (linePoints) {
+        appendLine (linePoints) {
             let curveLine = line().x(item => item.x).y(item => item.y),
                 symbolLine = symbol().type(d3.symbolTriangle)
 
@@ -400,8 +482,6 @@ export default {
                     .attr('stroke-width', '1.5px')
                     .attr('class', 'zpLine')
                     .attr('fill-opacity', '0')
-                    
-                    
             
             let updateLines = lineGroupUpdate.select('.zpLine')
                     .attr('d', item => {
@@ -451,7 +531,11 @@ export default {
             }
             return `translate(${x}, ${y}) rotate(${rotate})`
         },
-        // 根据关联关系生成端点坐标
+        /**
+         * @description 根据关联关系模板生成坐标
+         * @argument start 起点模板 `${id}-${位置}`
+         * @argument end 起点模板 `${id}-${位置}`
+         */
         genPointsByRel (start, end) {
             // 解析字符串
             let startObj = this.parseIdString(start),
@@ -462,8 +546,6 @@ export default {
                 endNode = this.nodeList[endObj.id]
             
             // 根据位置计算坐标
-            // result.push({...this.calCoordinateByPos(startNode, startObj.position), position: startObj.position})
-            // result.push({...this.calCoordinateByPos(endNode, endObj.position), position: endObj.position})
             return this.genPathPoints(
                         {
                             ...this.calCoordinateByPos(startNode, startObj.position), 
@@ -481,32 +563,36 @@ export default {
             let temp = string.split('-')
             return {
                 id: temp[0],
-                position: temp[1]
+                position: temp[1] || null
             }
         },
-        // 根据位置计算坐标
-        calCoordinateByPos (node, position) {
-            switch (node.type) {
+        /**
+         * @description 根据位置计算坐标
+         * @argument nodeData 节点数据
+         * @argument position 方位
+         */
+        calCoordinateByPos (nodeData, position) {
+            switch (nodeData.type) {
                 case 'rect':
                     let x = null,
                         y = null
 
                     switch (position) {
                         case directions.top:
-                            x = node.x + node.width / 2
-                            y = node.y
+                            x = nodeData.x + nodeData.width / 2
+                            y = nodeData.y
                             break
                         case directions.bottom:
-                            x = node.x + node.width / 2
-                            y = node.y + node.height
+                            x = nodeData.x + nodeData.width / 2
+                            y = nodeData.y + nodeData.height
                             break
                         case directions.left:
-                            x = node.x
-                            y = node.y + node.height / 2
+                            x = nodeData.x
+                            y = nodeData.y + nodeData.height / 2
                             break
                         case directions.right:
-                            x = node.x + node.width
-                            y = node.y + node.height / 2
+                            x = nodeData.x + nodeData.width
+                            y = nodeData.y + nodeData.height / 2
                             break
                         default:
                             throw new Error(`不支持的方向类型: ${position}`)
@@ -514,8 +600,13 @@ export default {
 
                     return {x, y}
                     break
+                case 'point':
+                    return {
+                        x: nodeData.x,
+                        y: nodeData.y
+                    }
                 default:
-                    throw new Error(`不支持的节点类型: ${node.type}`)
+                    throw new Error(`不支持的节点类型: ${nodeData.type}`)
             }
         },
         // 根据起始点，终点，以及起始方向生成连线中的节点坐标
@@ -525,10 +616,12 @@ export default {
                 x: linesCollect.midX,
                 y: linesCollect.midY
             }
+            // 给节点赋初始方向
+            this.setDirection(startPoint, endPoint)
             let startPoints = [],
                 endPoints = []
             let sameLine = this.isSameLine(startPoint, endPoint),
-                haveInter = this.calIntersectionByTwoPoints(startPoint, startPoint)
+                haveInter = this.calIntersectionByTwoPoints(startPoint, endPoint)
             // 递归 直到有交点或在同一条线上
             while (!sameLine && !haveInter) {
                 startPoints.push(startPoint)
@@ -538,7 +631,7 @@ export default {
                 endPoint = this.calIntersection(endPoint, midNode, linesCollect)
 
                 sameLine = this.isSameLine(startPoint, endPoint),
-                haveInter = this.calIntersectionByTwoPoints(startPoint, startPoint)
+                haveInter = this.calIntersectionByTwoPoints(startPoint, endPoint)
             }
             if (haveInter) {
                 points.push(haveInter)
@@ -549,6 +642,83 @@ export default {
         },
         // 根据两个元素生成包围的线及坐标线的集合
         genLinesCollect (startEl, endEl) {
+            let linesCollect = null
+
+            if (startEl.type === 'point' && endEl.type === 'point') {
+                // 两个点的连线
+                linesCollect = this.genLinesCollectByTwoPoints(startEl, endEl)
+            } else if (startEl.type === 'point' || endEl.type === 'point') {
+                // 一个点与一个图形的连线
+                linesCollect = this.genLinesCollectByPointAndNode(startEl, endEl)
+            } else {
+                // 两个图形的连线
+                linesCollect = this.genLinesCollectByTwoNodes(startEl, endEl)
+            }
+
+            return  {
+                ...linesCollect, 
+                x: [linesCollect.minX, linesCollect.midX, linesCollect.maxX], 
+                y: [linesCollect.minY, linesCollect.midY, linesCollect.maxY]
+            }
+        },
+        // 通过两个点生成包围线
+        genLinesCollectByTwoPoints (startPoint, endPoint) {
+            let linesCollect = {}
+
+            if (startPoint.x < endPoint.x) {
+                linesCollect.minX = startPoint.x
+                linesCollect.maxX = endPoint.x
+            } else {
+                linesCollect.minX = endPoint.x
+                linesCollect.maxX = startPoint.x
+            }
+
+            if (startPoint.y < endPoint.y) {
+                linesCollect.minY = startPoint.y
+                linesCollect.maxY = endPoint.y
+            } else {
+                linesCollect.minY = endPoint.y
+                linesCollect.maxY = startPoint.y
+            }
+
+            linesCollect.midX = Math.abs((endPoint.x - startPoint.x) / 2) + linesCollect.minX
+            linesCollect.midY = Math.abs((endPoint.y - startPoint.y) / 2) + linesCollect.minY
+
+            return linesCollect
+        },
+        // 通过一个节点一个图形生成包围线 不需要中点的线 向点移动
+        genLinesCollectByPointAndNode (startEl, endEl) {
+            let linesCollect = {},
+                pointObj = nodeObj = null
+
+            if (startEl.type === 'point') {
+                pointObj = startEl
+                nodeObj = endEl
+            } else {
+                pointObj = endEl
+                nodeObj = startEl
+            }
+
+            if (pointObj.x < nodeObj.x) {
+                linesCollect.minX = pointObj.x
+                linesCollect.maxX = nodeObj.x + nodeObj.width + this.minLen
+            } else {
+                linesCollect.minX = nodeObj.x + nodeObj.width - this.minLen
+                linesCollect.maxX = pointObj.x
+            }
+
+            if (pointObj.y < nodeObj.y) {
+                linesCollect.minY = pointObj.y
+                linesCollect.maxY = nodeObj.y + nodeObj.height + this.minLen
+            } else {
+                linesCollect.minY = nodeObj.y + nodeObj.height - this.minLen
+                linesCollect.maxY = pointObj.y
+            }
+
+            return linesCollect
+        },
+        // 通过两个图形生成包围线
+        genLinesCollectByTwoNodes (startEl, endEl) {
             let linesCollect = {},
                 minWidth = null,
                 minHeight = null
@@ -592,17 +762,13 @@ export default {
             linesCollect.maxX = linesCollect.maxX + this.minLen
             linesCollect.minY = linesCollect.minY - this.minLen
             linesCollect.maxY = linesCollect.maxY + this.minLen
-            return  {
-                        ...linesCollect, 
-                        x: [linesCollect.minX, linesCollect.midX, linesCollect.maxX], 
-                        y: [linesCollect.minY, linesCollect.midY, linesCollect.maxY]
-                    }
+            return  linesCollect
         },
         // 给定点坐标及点的初始方向与线的集合以及中点(控制转向)，计算与集合的交点
         calIntersection (node, midNode, linesCollect) {
             // 当前节点的方向
             let nodeDirection = xyDirections[node.position],
-                // 垂直于节点的方向
+               // 垂直于节点的方向
                 hDirection = nodeDirection === 'x' ? 'y' : 'x'
             // 在集合中取垂直的
             let currentCollect = linesCollect[nodeDirection]
@@ -698,6 +864,19 @@ export default {
         },
         maxValInArr (arr) {
             return Math.max.apply({}, arr)
+        },
+        setDirection (startNode, endNode) {
+            if (startNode.position) {
+                return 
+            }
+
+            if (startNode.x < endNode.x) {
+                startNode.position = directions.right
+                endNode.position = directions.left
+            } else {
+                startNode.position = directions.left
+                endNode.position = directions.right
+            }
         }
     },
     mounted () {
