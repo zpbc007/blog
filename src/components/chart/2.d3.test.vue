@@ -23,12 +23,18 @@
 </template>
 <script>
 import * as d3 from 'd3'
+// 用于生成节点id
 import uuid from 'uuid/v4'
+// 用于查找节点附近的节点
+import {Rectangle, initTree} from '@util/QuadTree'
+
+const quadTree = initTree(1, 10, new Rectangle(0, 0, 1200, 800))
 
 const drag = d3.drag
 const line = d3.line
 const symbol = d3.symbol
 
+// 初始节点数据
 const initNodeList = [
     {
         // 包含的文字
@@ -100,7 +106,7 @@ const initNodeList = [
         id: 7
     }
 ]
-
+// 初始关联数据
 const relList = {
     '1-+-top': ['2-+-bottom'],
     '1-+-right': ['5-+-left'],
@@ -132,6 +138,7 @@ const transparentNodeDefaultAttr = {
     'stroke': 'white',
     'stroke-width': '0'
 }
+// 矩形上的圆形默认属性
 const rectCircleDefaultAttr = {
     'r': 5,
     'fill-opacity': 0.5,

@@ -98,6 +98,33 @@ class QuadTree {
         }
     }
 
+    // 删除某个节点
+    remove (node) {
+        const index = this.getIndex(node)
+        if (index !== -1 && this.child.length > 0) {
+            this.child[index].remove(node)
+            // 删除后没有子节点了 清除
+            let sum = 0
+            this.child.forEach(child => {
+                sum += child.getAllNodes()
+            })
+            if (sum == 0) {
+                this.child = []
+            }
+        } else {
+            this.nodes = this.nodes.filter(item => item.id !== node.id)
+        }
+    }
+
+    traverse (callback) {
+        callback(this)
+        if (this.child.length > 0) {
+            for (let child of this.child) {
+                child.traverse(callback)
+            }
+        }
+    }
+
     // 获取当前节点的所有点
     getAllNodes () {
         let result = []
@@ -112,18 +139,42 @@ class QuadTree {
         return result
     }
 
-    search (num, rect, result) {
-        // 数量够了返回
-        if (result.length >= num) {
-            return
+    isInner (rect, bounds) {
+        return rect.x >= bounds.x &&
+            rect.x + rect.width <= bounds.x + bounds.width &&
+            rect.y >= bounds.y &&
+            rect.y + rect.height <= bounds.y + bounds.height
+    }
+
+    refresh (root) {
+        root = root || this
+        let rect, index, node
+
+        for (let i = this.nodes.length - 1; i >= 0; i--) {
+            node = this.nodes[i]
+            index = this.getIndex(node)
+            
+            // 如果不属于当前象限，重新插入
+            if (!this.isInner(node, this.rect)) {
+                if (this !== root) {
+                    root.insert(this.nodes.splice(i, 1)[0])
+                }
+            // 属于此象限且具有子节点
+            } else if (this.child.length > 0 && index !== -1) {
+                this.child[index].insert(this.nodes.splice(i, 1)[0])
+            }
         }
 
+        for (let child of this.child) {
+            child.refresh(root)
+        }
+    }
+
+    search (num, rect, result) {
+        this.refresh()
         // 没有子节点 将当前树的节点放入
         if (!this.child[0]) {
             for (let node of this.nodes) {
-                if (result.length >= num) {
-                    return
-                }
                 result.push(node)
             }
             return 
@@ -141,8 +192,9 @@ class QuadTree {
                         result.push.apply(result, child.getAllNodes())
                     }
                 })
-                result.push.apply(result, this.nodes)
+                
             }
+            result.push.apply(result, this.nodes)
         } else {
             // 只属于当前节点把所有节点都给它
             result.push.apply(result, this.getAllNodes())
@@ -151,11 +203,28 @@ class QuadTree {
 }
 // 矩形区域
 class Rectangle {
-    constructor (x, y, width, height) {
-        this.x = x
-        this.y = y
-        this.width = width
-        this.height = height
+    constructor (x, y, width, height, id) {
+        let obj = {}
+        obj.x = x
+        obj.y = y
+        obj.width = width
+        obj.height = height
+        obj.id = id
+
+        for (let key of Object.keys(obj)) {
+            Object.defineProperty(this, key, {
+                get() {
+                    if (typeof obj[key] === 'function') {
+                        return obj[key]()
+                    } else {
+                        return obj[key]
+                    }
+                },
+                set (value) {
+                    obj[key] = value
+                }
+            })
+        }
     }
 }
 
