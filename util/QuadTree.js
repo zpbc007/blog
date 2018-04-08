@@ -116,6 +116,7 @@ class QuadTree {
         }
     }
 
+    // 遍历树的节点
     traverse (callback) {
         callback(this)
         if (this.child.length > 0) {
@@ -139,6 +140,7 @@ class QuadTree {
         return result
     }
 
+    // 是否在内部
     isInner (rect, bounds) {
         return rect.x >= bounds.x &&
             rect.x + rect.width <= bounds.x + bounds.width &&
@@ -146,6 +148,7 @@ class QuadTree {
             rect.y + rect.height <= bounds.y + bounds.height
     }
 
+    // 刷新树，将不正确的节点重新插入
     refresh (root) {
         root = root || this
         let rect, index, node
@@ -185,15 +188,14 @@ class QuadTree {
             // 去子节点中查找
             this.child[index].search(num, rect, result)
 
-            // 子节点中不够 把自己与兄弟的放入
-            if (result.length < num) {
-                this.child.forEach((child, i) => {
-                    if (i !== index) {
-                        result.push.apply(result, child.getAllNodes())
-                    }
-                })
-                
-            }
+            // 子节点中不够 把自己与兄弟的放入 只要一个相交节点 布置在同一象限肯定不想交
+            // if (result.length < num) {
+            //     this.child.forEach((child, i) => {
+            //         if (i !== index) {
+            //             result.push.apply(result, child.getAllNodes())
+            //         }
+            //     })
+            // }
             result.push.apply(result, this.nodes)
         } else {
             // 只属于当前节点把所有节点都给它
