@@ -173,6 +173,7 @@ class QuadTree {
         }
     }
 
+    // 查找是否有相交的节点
     search (num, rect, result) {
         this.refresh()
         // 没有子节点 将当前树的节点放入

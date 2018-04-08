@@ -29,6 +29,7 @@ import uuid from 'uuid/v4'
 import {Rectangle, initTree} from '@util/QuadTree'
 
 const quadTree = initTree(1, 10, new Rectangle(0, 0, 1200, 800))
+window.quadTree = quadTree
 
 const drag = d3.drag
 const line = d3.line
@@ -112,8 +113,7 @@ const relList = {
     '1-+-right': ['5-+-left'],
     '1-+-bottom': ['3-+-top'],
     '1-+-left': ['4-+-right'],
-    // '6': ['7']
-    // '1-left': ['7']
+    '6': ['7']
 }
 
 // 节点挂载点
@@ -166,13 +166,17 @@ export default {
             nodeList: {},
             // key为图形id-position
             relList: {},
+            // 反向连接
+            reverseRelList: {},
             // 临时生成的节点
             tempNodeList: {},
             svg: null,
             minLen: 20,
             // 图形id数组
             selectedNodeList: [],
-            currentDragItemId: null
+            currentDragItemId: null,
+            // 存放的是图形边界上的点
+            quadTree: null
         }
     },
     watch: {
@@ -233,6 +237,7 @@ export default {
         init () {
             this.initCanvas()
             this.initData()
+            this.quadTree = quadTree
         },
         // 准备画布
         initCanvas () {
@@ -251,7 +256,28 @@ export default {
                 this.addNodeToNodeList(node)
             }
             // 关联数据
-            this.relList = relList
+            for (let from in relList) {
+                for (let to of relList[from]) {
+                    this.addRel(from, to)
+                }
+            }
+        },
+        // 添加关系
+        addRel (from, to) {
+            if (!this.relList[from]) {
+                this.$set(this.relList, from, [])
+            }
+            this.relList[from].push(to)
+
+            if (!this.reverseRelList[to]) {
+                this.$set(this.reverseRelList, to, [])
+            }
+            this.reverseRelList[to].push(from)
+        },
+        // 删除关系
+        delRel (from, to) {
+            this.relList[from].splice(this.relList[form].indexOf(from), 1)
+            this.reverseRelList[to].splice(this.reverseRelList[to].indexOf(to), 1)
         },
         // 添加节点
         addNode () {
@@ -286,8 +312,31 @@ export default {
             return nodeId
         },
         // 添加节点到临时节点中
-        addNodeToTempNodeList (node) {
-            let nodeId = this.createId()
+        addNodeToTempNodeList (node, parentRectId) {
+            let nodeId = null,
+                vue = this
+            if (node.id) {
+                nodeId = node.id
+            } else {
+                nodeId = this.createId()
+                let nodeR = Number.parseFloat(node.r.match(/[0-9]*/)[0])
+                // 将节点添加到树中
+                this.quadTree.insert(new Rectangle(
+                    () => {
+                        // 根据rectId找到父级transform
+                        let {x} = vue.getNodeData(parentRectId)
+
+                        return node.x - nodeR + x
+                    }, 
+                    () => {
+                        let {y} = vue.getNodeData(parentRectId)
+
+                        return node.y - nodeR + y
+                    },
+                    2 * nodeR,
+                    2 * nodeR,
+                    nodeId))
+            }
             this.$set(this.tempNodeList, nodeId, {...node, id: nodeId})
             return nodeId
         },
@@ -358,21 +407,71 @@ export default {
                             let rectId = d3.select(item.parentNode).select('rect').attr('id')
                             let position = this.getNodeData(rectId)['_child'][item.id]
                             let relId = this.createRelId(rectId, position)
-                            if (!this.relList[relId]) {
-                                this.$set(this.relList, relId, [])
-                            }
-                            this.relList[relId].push(`${nodeId}`)
+                            // if (!this.relList[relId]) {
+                            //     this.$set(this.relList, relId, [])
+                            // }
+                            // this.relList[relId].push(`${nodeId}`)
+                            this.addRel(relId, nodeId)
                             this.currentDragItemId = nodeId
                         }
                         this.$set(this.getNodeData(this.currentDragItemId), 'x', d3.event.sourceEvent.offsetX)
                         this.$set(this.getNodeData(this.currentDragItemId), 'y', d3.event.sourceEvent.offsetY)
                     }, (item, data) => {
-                        // 判断是否落在某个节点上
-
-                        this.addDragEvent(d3.select(`[id='${this.currentDragItemId}']`), (item, data) => {
-                            this.$set(this.getNodeData(data.id), 'x', d3.event.sourceEvent.offsetX)
-                            this.$set(this.getNodeData(data.id), 'y', d3.event.sourceEvent.offsetY)
+                        let {x, y, r} = this.getNodeData(this.currentDragItemId),
+                            nearbyNodes = [],
+                            // 相交节点id
+                            rectNodeId = null
+                        // 查找附近节点
+                        this.quadTree.search(1, new Rectangle(x - r, y - r, 2 * r, 2 * r), nearbyNodes)
+                        console.log('附近节点', nearbyNodes)
+                        // 判断是否相交
+                        nearbyNodes.forEach(node => {
+                            if (Math.sqrt(Math.pow(node.x -x, 2) + Math.pow(node.y - y, 2)) < 20) {
+                                rectNodeId = node.id
+                            }
                         })
+                        
+                        if (rectNodeId) {
+                            let from = this.reverseRelList[this.currentDragItemId]
+                            // 删除临时连接
+                            this.$set(this.relList, this.currentDragItemId, [])
+                            // 有相交节点建立连接
+                            // this.$set(this.relList, relId, [])
+
+                        } else {
+                            // 没有相交节点 添加拖动事件
+                            this.addDragEvent(d3.select(`[id='${this.currentDragItemId}']`), (item, data) => {
+                                this.$set(this.getNodeData(data.id), 'x', d3.event.sourceEvent.offsetX)
+                                this.$set(this.getNodeData(data.id), 'y', d3.event.sourceEvent.offsetY)
+                            }, (item, data) => {
+                                let {x, y, r} = this.getNodeData(data.id),
+                                    nearbyNodes = [],
+                                    rectNodeId = null
+                                // 查找附近节点
+                                this.quadTree.search(1, new Rectangle(x - r, y - r, 2 * r, 2 * r), nearbyNodes)
+                                console.log('附近节点', nearbyNodes)
+                                // 判断是否相交
+                                nearbyNodes.forEach(node => {
+                                    if (Math.sqrt(Math.pow(node.x -x, 2) + Math.pow(node.y - y, 2)) < 20) {
+                                        rectNodeId = node.id
+                                    }
+                                })
+                                
+                                if (rectNodeId) {
+                                    debugger
+                                    // 删除临时连接
+                                    delete this.relList[data.id]
+                                    // this.$set(this.relList, data.id, null)
+                                    // 删除节点
+                                    delete this.tempNodeList[data.id]
+                                    this.drawLines()
+                                    // this.$set(this.tempNodeList, data.id, null)
+                                    // 有相交节点建立连接
+                                    // this.$set(this.relList, relId, [])
+
+                                }
+                            })
+                        }
                         this.currentDragItemId = null
                     })
                 })
@@ -410,6 +509,7 @@ export default {
                 .attr('stroke-width', '1.5px')
                 .attr('stroke', 'steelblue')
                 .attr('id', item => item.id)
+
             return {
                 group: rectGroupUpdate.merge(rectGroupEnter),
                 graph: this.svg.selectAll('.zpRectGroup').selectAll('.zpRect')
@@ -477,19 +577,34 @@ export default {
                 // 计算四个圆的坐标
                 switch (item.type) {
                     case 'rect':
-                        let points = []
-                        // 计算每个圆形的坐标
+                        let points = [],
+                            parentNode = group[0].parentNode,
+                            d3ParentNode = d3.select(parentNode)
+
+                        // 计算每个圆形的坐标 如果已经有直接修改
+                        let circles = d3ParentNode
+                            .selectAll('.circle'),
+                            idObj= {}
+                        
+                        if (circles.nodes().length > 0) {
+                            circles.each(item => {
+                                idObj[item.position] = item.id
+                            })
+                        }
+                        
                         for (let dir in directions) {
                             let id = this.addNodeToTempNodeList({
                                 ...rectCircleDefaultAttr,
                                 // g有偏移
                                 ...this.calCoordinateByPos({...item, x: 0, y: 0}, dir),
-                                r: '5px',
-                                type: 'point-on-rect'
-                            })
+                                r: '5',
+                                type: 'point-on-rect',
+                                id: idObj[dir] || null
+                            }, d3.select(group[0]).attr('id'))
                             points.push({id: id, position: dir})
                         }
-                        let circles = this.appendCircle(points, d3.select(group[0].parentNode))
+                        circles = this.appendCircle(points, d3ParentNode)
+                        
                         item['_child'] = {}
                         for (let obj of points) {
                             item['_child'][obj.id] = obj.position
@@ -568,7 +683,10 @@ export default {
                     .data(linePoints),
                 lineGroupEnter = lineGroupUpdate.enter()
                     .append('g')
-                    .attr('class', 'zpLineGroup')
+                    .attr('class', 'zpLineGroup'),
+                lineRemove = lineGroupUpdate.exit()
+            
+            lineRemove.remove()
             
             let appendLines = lineGroupEnter.insert('path', 'g')
                     .attr('d', item => {
@@ -1067,6 +1185,31 @@ export default {
                 }
             }
             return false
+        },
+        // todo 测试
+        drawTreeLine () {
+            let rects = []
+            this.quadTree.traverse(item => {
+                rects.push(item.rect)
+            })
+            this.appendTreeRect(rects)
+        },
+        // 测试
+        appendTreeRect (rectData) {
+
+            const rectUpdate = this.svg.selectAll('.tree-rect').data(rectData),
+                rectEnter = rectUpdate.enter()
+                
+            rectUpdate.exit().remove()
+            rectEnter.append('rect').merge(rectUpdate)
+                .attr('width', item => item.width)
+                .attr('height', item => item.height)
+                .attr('x', item => item.x)
+                .attr('y', item => item.y)
+                .attr('stroke-width', '1.5px')
+                .attr('stroke', 'green')
+                .attr('fill-opacity', item => item['fill-opacity'] || '0')
+                .attr('class', 'tree-rect')
         }
     },
     mounted () {
