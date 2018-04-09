@@ -13,6 +13,7 @@ const editPage = resolve => require(['../components/editPage.vue'], resolve)
 // 流程图测试
 const flowchart = resolve => require(['../components/chart/1.flowchart.text.vue'], resolve)
 const flowchart3 = resolve => require(['../components/chart/2.d3.test.vue'], resolve)
+const flowchart4 = resolve => require(['../components/chart/4.myWork.vue'], resolve)
 
 // 四叉树测试
 const QuadTree = resolve => require(['../components/chart/3.QuadTree.test.vue'], resolve)
@@ -57,6 +58,11 @@ const router = new VueRouter({
         {
             path: '/chart4',
             name: 'flowchart4',
+            component: flowchart4
+        },
+        {
+            path: '/chart5',
+            name: 'flowchart5',
             component: QuadTree
         }
     ]
