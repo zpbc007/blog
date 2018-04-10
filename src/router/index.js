@@ -14,6 +14,7 @@ const editPage = resolve => require(['../components/editPage.vue'], resolve)
 const flowchart = resolve => require(['../components/chart/1.flowchart.text.vue'], resolve)
 const flowchart3 = resolve => require(['../components/chart/2.d3.test.vue'], resolve)
 const flowchart4 = resolve => require(['../components/chart/4.myWork.vue'], resolve)
+const flowchart5 = resolve => require(['../components/chart/5.classChart.vue'], resolve)
 
 // 四叉树测试
 const QuadTree = resolve => require(['../components/chart/3.QuadTree.test.vue'], resolve)
@@ -63,6 +64,11 @@ const router = new VueRouter({
         {
             path: '/chart5',
             name: 'flowchart5',
+            component: flowchart5
+        },
+        {
+            path: '/chart6',
+            name: 'flowchart6',
             component: QuadTree
         }
     ]

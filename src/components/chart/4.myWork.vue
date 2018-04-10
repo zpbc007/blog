@@ -137,7 +137,7 @@ const DefaultValue = {
             'text-align': 'center', 
             'color': 'rgb(50, 50, 50)', 
             'text-decoration': 'none',
-            'opacity': '1',
+            'opacity': '0.8',
             'resize': 'none'
         }
     }
@@ -369,6 +369,10 @@ export default {
                 nodes.group.each(function (data, index) {
                     vue.__appendText([data.text], `text-${data.containerId}`)
                 })
+                // 添加点击事件
+                this.__addClickEvent(nodes.group, (data, index, dom) => {
+                    console.log(dom.getAttribute('id'))
+                })
             })
 
             this.drawLine()
@@ -567,6 +571,12 @@ export default {
                 result += `${attr}: ${obj[attr]};`
             }
             return result
+        },
+        // 添加点击事件
+        __addClickEvent (nodeList, callback) {
+            nodeList.on('click', function (data, index) {
+                callback(data, index, this)
+            })
         }
     },
     mounted () {
