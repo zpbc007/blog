@@ -122,3 +122,48 @@ var c = new Cobra('cobra')
 console.log(c.glow())
 console.log(c.glow())
 console.log(c.glow())
+
+
+//
+function createBase () {
+    return P(FunctionBase, function (proto, superProto) {
+                    proto.init = function () {
+                        console.log('init Base')
+                    }
+                    proto.child = []
+                })   
+               
+}
+
+function createRect () {
+    return P(Base, function (proto, superProto) {
+        proto.init = function () {
+            this.name = 'rect'
+        }
+    })
+}
+function createLine () {
+    return P(Base, function (proto, superProto) {
+            proto.init = function () {
+                this.name = 'line'
+            }
+        })
+}
+
+let Base = createBase() 
+let Rect = createRect()
+let Line = createLine()
+
+function Reset () {
+    FunctionBase.prototype.compList.push({Base, Rect, Line})
+    Base = createBase() 
+    Rect = createRect()
+    Line = createLine()
+}
+
+function Recovery (index) {
+    let Obj = FunctionBase.prototype.compList.splice(index, 1)[0]
+    Base = Obj.Base
+    Rect = Obj.Rect
+    Line = Obj.Line
+}
