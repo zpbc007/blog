@@ -60,4 +60,4 @@
 
 1. blog-client与blog-server能够通过websocket通信
 2. 能够使用graphql进行查询数据
-3. 文件中存放的文档描述信息能够放入数据库中,并及时同步。
+3. 文档描述信息存放于psql中，并定时进行备份
