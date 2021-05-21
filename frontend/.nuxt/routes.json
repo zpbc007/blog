@@ -1,0 +1,23 @@
+[
+  {
+    "name": "articles-slug",
+    "path": "/articles/:slug?",
+    "component": "/Users/zhaopeng06/Documents/code/self/blog/frontend/pages/articles/_slug.vue",
+    "chunkName": "pages/articles/_slug",
+    "_name": "_1ab499e2"
+  },
+  {
+    "name": "categories-slug",
+    "path": "/categories/:slug?",
+    "component": "/Users/zhaopeng06/Documents/code/self/blog/frontend/pages/categories/_slug.vue",
+    "chunkName": "pages/categories/_slug",
+    "_name": "_668cc681"
+  },
+  {
+    "name": "index",
+    "path": "/",
+    "component": "/Users/zhaopeng06/Documents/code/self/blog/frontend/pages/index.vue",
+    "chunkName": "pages/index",
+    "_name": "_4e9a87d0"
+  }
+]
