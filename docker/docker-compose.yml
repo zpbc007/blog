@@ -1,0 +1,19 @@
+version: '3'
+services:
+    db:
+        image: 'postgres:alpine'
+        restart: always
+        ports:
+            - '5432:${db_port}'
+        environment:
+            POSTGRES_PASSWORD: ${db_password}
+            POSTGRES_USER: ${db_user}
+            POSTGRES_DB: ${db_name}
+
+    strapi:
+        build: ../backend
+        restart: always
+        ports:
+            - '1337:${strapi_port}'
+        depends_on:
+            - db
