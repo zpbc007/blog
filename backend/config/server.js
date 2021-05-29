@@ -6,4 +6,5 @@ module.exports = ({ env }) => ({
       secret: env('ADMIN_JWT_SECRET', 'ae862842427123962e087f76d75bfdb1'),
     },
   },
+  url: env('NODE_ENV', 'development') === 'production' ? 'https://strapi.callback.cool' : 'null'
 });
