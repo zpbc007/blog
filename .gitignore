@@ -113,3 +113,4 @@ build
 .strapi-updater.json
 
 .nuxt
+frontend/dist
