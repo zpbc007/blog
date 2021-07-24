@@ -12,35 +12,35 @@
 </template>
 
 <script>
-import Articles from "../../components/Articles";
-import { getMetaTags } from "../../utils/seo";
-import { getStrapiMedia } from "../../utils/medias";
+import Articles from '../../components/Articles'
+import { getMetaTags } from '../../utils/seo'
+import { getStrapiMedia } from '../../utils/medias'
 
 export default {
   components: {
     Articles,
   },
   async asyncData({ $strapi, params }) {
-    const matchingCategories = await $strapi.find("categories", {
+    const matchingCategories = await $strapi.find('categories', {
       slug: params.slug,
-    });
+    })
     return {
       category: matchingCategories[0],
-      articles: await $strapi.find("articles", {
-        "category.name": params.slug,
+      articles: await $strapi.find('articles', {
+        'category.slug': params.slug,
       }),
-      global: await $strapi.find("global"),
-    };
+      global: await $strapi.find('global'),
+    }
   },
   head() {
-    const { defaultSeo, favicon, siteName } = this.global;
+    const { defaultSeo, favicon, siteName } = this.global
 
     // Merge default and article-specific SEO data
     const fullSeo = {
       ...defaultSeo,
       metaTitle: `${this.category.name} articles`,
       metaDescription: `All articles about ${this.category.name}`,
-    };
+    }
 
     return {
       title: fullSeo.metaTitle,
@@ -48,11 +48,11 @@ export default {
       meta: getMetaTags(fullSeo),
       link: [
         {
-          rel: "favicon",
+          rel: 'favicon',
           href: getStrapiMedia(favicon.url),
         },
       ],
-    };
+    }
   },
-};
+}
 </script>

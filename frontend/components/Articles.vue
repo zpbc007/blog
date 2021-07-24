@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import ArticleCard from "./ArticleCard";
+import ArticleCard from './ArticleCard'
 
 export default {
   components: {
@@ -36,14 +36,14 @@ export default {
   },
   computed: {
     leftArticlesCount() {
-      return Math.ceil(this.articles.length / 5);
+      return Math.ceil(this.articles.length / 5)
     },
     leftArticles() {
-      return this.articles.slice(0, this.leftArticlesCount);
+      return this.articles.slice(0, this.leftArticlesCount)
     },
     rightArticles() {
-      return this.articles.slice(this.leftArticlesCount, this.articles.length);
+      return this.articles.slice(this.leftArticlesCount, this.articles.length)
     },
   },
-};
+}
 </script>
