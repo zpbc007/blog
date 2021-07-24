@@ -1,0 +1,52 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/bill-categories",
+      "handler": "bill-category.find",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/bill-categories/count",
+      "handler": "bill-category.count",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/bill-categories/:id",
+      "handler": "bill-category.findOne",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/bill-categories",
+      "handler": "bill-category.create",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/bill-categories/:id",
+      "handler": "bill-category.update",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/bill-categories/:id",
+      "handler": "bill-category.delete",
+      "config": {
+        "policies": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "kind": "collectionType",
+  "collectionName": "bill_categories",
+  "info": {
+    "name": "BillCategory"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "BillCategoryId": {
+      "type": "uid",
+      "required": true
+    },
+    "icon": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images"
+      ],
+      "plugin": "upload",
+      "required": false,
+      "pluginOptions": {}
+    },
+    "bills": {
+      "via": "bill_categories",
+      "collection": "bill"
+    }
+  }
+}
