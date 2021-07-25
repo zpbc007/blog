@@ -25,7 +25,10 @@ function build() {
     const child = shell.exec('npm run generate', {async: true})
     const donePromise = new Promise(resolve => {
         child.once('exit', (code, signal) => {
-            const res = shell.mv('./dist/*', nginxDistDir)
+            // 清空目录
+            shell.rm('-rf', `${nginxDistDir}/*`)
+            // 添加新文件
+            shell.mv('./dist/*', nginxDistDir)
             resolve({code, signal})
         })
     })
