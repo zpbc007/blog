@@ -62,6 +62,9 @@
       </div>
     </div>
     <nuxt />
+    <footer>
+      <a href="https://beian.miit.gov.cn/" target="_blank">辽ICP备18005641号-2</a>
+    </footer>
   </div>
 </template>
 
@@ -80,5 +83,9 @@ export default {
 <style lang="css" scoped>
 .cover {
   background-image: url('https://images.unsplash.com/photo-1493612276216-ee3925520721?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=3308&q=80');
+}
+.beian {
+  text-align: center;
+  padding: 10px;
 }
 </style>
