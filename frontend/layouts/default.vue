@@ -62,8 +62,10 @@
       </div>
     </div>
     <nuxt />
-    <footer>
-      <a href="https://beian.miit.gov.cn/" target="_blank">辽ICP备18005641号-2</a>
+    <footer class="beian">
+      <a href="https://beian.miit.gov.cn/" target="_blank"
+        >辽ICP备18005641号-2</a
+      >
     </footer>
   </div>
 </template>
